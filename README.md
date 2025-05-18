@@ -100,15 +100,75 @@ This solution uses **modular SQL with CTEs (Common Table Expressions)** for clar
 
 ---
 
-## 🕐 Q2: [Placeholder Title]
+## ✅ Q2: Transaction Frequency Analysis
 
-> 🟨 _In Progress..._
+### 🔍 Scenario  
+The finance team wants to understand how often customers transact, in order to segment them into frequency-based cohorts for personalized targeting or product design.
 
-- [ ] Problem breakdown
-- [ ] SQL plan
-- [ ] Query testing
-- [ ] Optimization
-- [ ] Benchmark & commit
+---
+
+### 🧩 Task  
+Group users into frequency segments by calculating their **average transactions per month**, based on records in `savings_savingsaccount`.
+
+**Categories**:
+- **High Frequency**: ≥ 10 txns/month  
+- **Medium Frequency**: 3–9 txns/month  
+- **Low Frequency**: ≤ 2 txns/month
+
+Return a summary report showing:
+- `frequency_category`
+- `customer_count`
+- `avg_transactions_per_month`
+
+---
+
+### 🧠 SQL Strategy
+
+This query was structured using **modular CTEs (Common Table Expressions)** for clarity, flexibility, and performance:
+
+1. **`user_monthly_stats`**  
+   - Aggregates `total_transactions` and `distinct months` per user  
+   - Calculates `avg_txn_per_month`
+
+2. **`categorized_users`**  
+   - Buckets each user into High/Medium/Low frequency based on average
+
+3. **Final SELECT**  
+   - Aggregates number of users per frequency group  
+   - Computes average frequency per group
+
+---
+
+### ⚙️ SQL Concepts Used
+
+| Feature                     | Purpose                                                    |
+|-----------------------------|------------------------------------------------------------|
+| `WITH` (CTE)                | Modular subquery logic                                     |
+| `DATE_FORMAT(..., '%Y-%m')` | Normalize timestamps to month granularity                  |
+| `CASE WHEN`                 | Used for frequency bucket classification                   |
+| `ROUND()`                   | For cleaner average output                                 |
+| `FIELD()` in `ORDER BY`     | Preserves semantic order of frequency labels               |
+
+---
+
+### 🧪 Performance
+
+- Query completed in **1 second**
+- Dataset size: ~159K+ transactions
+- Scalable due to well-structured aggregation and conditional logic
+
+---
+
+### 📊 Result Sample (All Frequency Buckets)
+
+| frequency_category | customer_count | avg_transactions_per_month |
+|--------------------|----------------|-----------------------------|
+| High Frequency     | 141            | 44.72                       |
+| Medium Frequency   | 178            | 4.57                        |
+| Low Frequency      | 554            | 1.37                        |
+
+> Full query and logic are saved in [`Assessment_Q2.sql`](./Assessment_Q2.sql)
+
 
 ---
 
