@@ -238,9 +238,86 @@ This query uses **modular CTEs** to separate concerns:
 
 ---
 
-## 🕐 Q4: [Placeholder Title]
+## ✅ Q4: Customer Lifetime Value Estimation
 
-> 🟨 _In Progress..._
+### 🔍 Scenario
+
+Marketing wants to estimate customer lifetime value (CLV) from tenure and transaction volume, using a simple profit margin.
+
+### 🧩 Task
+
+For each customer:
+
+1. **Tenure** (months since `date_joined`, minimum 1)
+2. **Total transactions** in `savings_savingsaccount`
+3. **Estimated profit per transaction** = 0.1% of transaction value
+4. **CLV** = (total\_transactions / tenure) × 12 × avg\_profit
+5. Sort by **estimated\_clv** descending
+
+---
+
+### 🧠 SQL Strategy
+
+```sql
+WITH user_stats AS (
+    SELECT
+        u.id                     AS customer_id,
+        u.name                   AS name,
+        GREATEST(
+          TIMESTAMPDIFF(MONTH, u.date_joined, NOW()),
+          1
+        )                       AS tenure_months,
+        COUNT(s.id)             AS total_transactions,
+        AVG(s.confirmed_amount) AS avg_amount_kobo
+    FROM users_customuser u
+    LEFT JOIN savings_savingsaccount s
+      ON s.owner_id = u.id
+    GROUP BY u.id, u.name
+)
+SELECT
+    customer_id,
+    name,
+    tenure_months,
+    total_transactions,
+    ROUND(
+      (total_transactions / tenure_months) * 12
+      * (avg_amount_kobo / 100000),
+      2
+    )                       AS estimated_clv
+FROM user_stats
+ORDER BY estimated_clv DESC;
+```
+
+---
+
+### ⚙️ SQL Concepts Used
+
+| Feature                    | Purpose                                                |
+| -------------------------- | ------------------------------------------------------ |
+| `TIMESTAMPDIFF(...,NOW())` | Calculates months of tenure                            |
+| `GREATEST(...,1)`          | Ensures at least one month to avoid zero division      |
+| `AVG()`                    | Computes average transaction value (in kobo)           |
+| `ROUND(...,2)`             | Formats CLV to two decimal places                      |
+| `CTE`                      | Modular separation of user stats and final computation |
+
+---
+
+### 🧪 Performance
+
+* Runtime: **1.4 seconds**
+* Dataset: \~1,867 users, \~163K transactions
+* Efficient through pre-aggregation in CTE
+
+---
+
+### 📊 Result Sample (Top 2 Customers)
+
+| customer\_id                     | name   | tenure\_months | total\_transactions | estimated\_clv |
+| -------------------------------- | ------ | -------------- | ------------------- | -------------- |
+| 1909df3eba2548cfa3b9c270112bd262 | (NULL) | 33             | 2,383               | 323,749.80     |
+| 3097d111f15b4c44ac1bf1f49ec8f9bb | (NULL) | 25             | 845                 | 103,777.81     |
+
+> Full query logic is stored in [`Assessment_Q4.sql`](./Assessment_Q4.sql)
 
 ---
 
