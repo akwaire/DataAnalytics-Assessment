@@ -170,9 +170,71 @@ This query was structured using **modular CTEs (Common Table Expressions)** for 
 
 ---
 
-## 🕐 Q3: [Placeholder Title]
 
-> 🟨 _In Progress..._
+
+## ✅ Q3: Account Inactivity Alert
+
+### 🔍 Scenario  
+The ops team wants to flag plans (savings or investment) that have **no inflow transactions** for over one year.
+
+### 🧩 Task  
+Find all active plans where:
+- No transactions in the past 365 days  
+- Includes plans that have **never been used**
+
+Return:
+- `plan_id`
+- `owner_id`
+- `type` (“Savings” or “Investment”)
+- `last_transaction_date`
+- `inactivity_days`
+
+---
+
+### 🧠 SQL Strategy
+
+This query uses **modular CTEs** to separate concerns:
+
+1. **`last_transaction`**  
+   - Aggregates the **most recent** `transaction_date` per plan.
+
+2. **Final SELECT**  
+   - Joins each plan to its last transaction  
+   - Filters for plans with `last_transaction_date IS NULL` or inactivity > 365 days  
+   - Calculates `inactivity_days` via `DATEDIFF(NOW(), last_transaction_date)`
+
+---
+
+### ⚙️ SQL Concepts Used
+
+| Feature            | Purpose                                               |
+|--------------------|-------------------------------------------------------|
+| `WITH` (CTE)       | Isolates “most recent inflow” logic                   |
+| `MAX()`            | Finds the latest transaction per plan                 |
+| `LEFT JOIN`        | Includes plans with no matching transactions          |
+| `CASE WHEN`        | Classifies each plan as “Savings” or “Investment”     |
+| `DATEDIFF()`       | Computes days since the last inflow                   |
+
+---
+
+### 🧪 Performance
+
+- Query runtime: **2.7 seconds**  
+- Dataset: ~9.6K plans, ~163K transactions  
+- Scalable with proper indexing on `(savings_id, transaction_date)`
+
+---
+
+### 📊 Result Sample (Top 3 Plans)
+
+| plan_id                             | owner_id                           | type       | last_transaction_date | inactivity_days |
+|-------------------------------------|------------------------------------|------------|-----------------------|-----------------|
+| 002b48c9f6ec48fdb586bd0a5f01f8e6    | 5572810f38b543429ffb218ef15243fc   | Savings    | 2023-01-15 10:22:35   | 458             |
+| 0032b91dd582408ab59946b54a19fc7e    | d4fc05997a4a419fac61fe92d3644742   | Investment | NULL                  | NULL            |
+| bf35ec61318b4bd680780f6fba6eeff2    | da1b733b34084652897e4be00f49ffb0   | Investment | NULL                  | NULL            |
+
+> Full query and logic are saved in [`Assessment_Q3.sql`](./Assessment_Q3.sql)
+
 
 ---
 
