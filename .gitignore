@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# VS Code workspace
+.vscode/
+
+# Log files
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Archives you don’t need in source control
+*.zip
