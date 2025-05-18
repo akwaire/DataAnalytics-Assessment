@@ -321,6 +321,22 @@ ORDER BY estimated_clv DESC;
 
 ---
 
+### Challenges & Resolutions
+
+- **Missing signup date edge cases:**  
+  Some very new users had `date_joined` equal to the current month, leading to a tenure of 0.  
+  **Resolution:** Used `GREATEST(TIMESTAMPDIFF(...), 1)` to ensure a minimum of 1 month.
+
+- **Profit calculation in kobo:**  
+  Transaction values are stored in kobo, so dividing by 100,000 (÷100 for naira, ×0.001 for 0.1% profit) felt non-intuitive.  
+  **Resolution:** Documented the math in code comments and used a clear formula: `(avg_amount_kobo / 100000)`.
+
+- **Performance tuning:**  
+  The initial query combining joins and aggregates was taking ~2s.  
+  **Resolution:** Moved the heavy aggregations into a single CTE (`user_stats`) to pre-aggregate and then perform the final calculation, reducing runtime to ~1.4s.
+
+---
+
 ## 🧠 Author Notes
 
 - This project was executed with a focus on **transparency**, **real-time testing**, and **efficient SQL practices**
