@@ -67,7 +67,7 @@ Identify customers who hold **at least one** funded savings plan *and* **one** f
 4. **Ordering:** Descending by total deposits.
 
 ```sql
--- See [Assessment_Q1.sql](https://github.com/akwaire/DataAnalytics-Assessment/blob/main/Assessment_Q1.sql)
+ See [Assessment_Q1.sql](https://github.com/akwaire/DataAnalytics-Assessment/blob/main/Assessment_Q1.sql)
 ```
 
 ---
