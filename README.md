@@ -240,6 +240,12 @@ ORDER BY
   * Converting kobo→naira and applying a 0.1% profit margin correctly.
   * Filtering out plans with **no** deposits ever when flagging inactivity.
 
+### Getting Started
+1. Install MySQL 8.0 (or use XAMPP).
+2. Create database: `CREATE DATABASE adashi_staging;`
+3. Import dump: `mysql -u root -p adashi_staging < adashi_assessment.sql`
+4. Run each query file in your SQL client.
+
 ---
 
 *Thank you for reviewing my SQL assessment solutions. Feel free to reach out for any clarifications!*
