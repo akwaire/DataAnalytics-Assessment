@@ -1,32 +1,50 @@
--- Assessment_Q3.sql
--- Identify active plans (savings or investment) with no inflow
--- (deposit) transactions in the last 365 days.
+-- Q3: Account Inactivity Alert
+-- Goal: Identify savings or investment plans with no inflow in the last 365 days (or never used).
 
+-- ========================================================================
+-- Step 1: Compute each plan’s most recent inflow date
+-- ========================================================================
+WITH last_transaction AS (
+    SELECT
+        savings_id,                                 -- plan identifier
+        MAX(transaction_date) AS last_transaction_date  -- latest inflow per plan
+    FROM savings_savingsaccount
+    -- no WHERE needed since MAX(NULL) is ignored
+    GROUP BY savings_id                           -- one row per plan
+)
+
+-- ========================================================================
+-- Step 2: Join plans to their last inflow info and filter for inactivity
+-- ========================================================================
 SELECT
-  p.id                                AS plan_id,
-  p.owner_id                          AS owner_id,
-  CASE
-    WHEN p.is_regular_savings = 1 THEN 'Savings'
-    WHEN p.is_a_fund         = 1 THEN 'Investment'
-    ELSE 'Unknown'
-  END                                 AS type,
-  -- Most recent deposit date for this plan
-  MAX(s.transaction_date)            AS last_transaction_date,
-  -- Days since that last deposit
-  DATEDIFF(CURDATE(), MAX(s.transaction_date))  
-                                      AS inactivity_days
-FROM
-  plans_plan p
-  LEFT JOIN savings_savingsaccount s
-    ON s.savings_id = p.id
-GROUP BY
-  p.id,
-  p.owner_id,
-  p.is_regular_savings,
-  p.is_a_fund
-HAVING
-  -- Exclude plans with no deposits ever
-  MAX(s.transaction_date) IS NOT NULL
-  -- Only those whose last deposit is 365+ days ago
-  AND MAX(s.transaction_date) <= DATE_SUB(CURDATE(), INTERVAL 365 DAY)
-;
+    p.id                   AS plan_id,           -- plan identifier
+    p.owner_id             AS owner_id,          -- customer identifier
+
+    -- Classify plan type
+    CASE
+      WHEN p.is_regular_savings = 1 THEN 'Savings'
+      WHEN p.is_a_fund         = 1 THEN 'Investment'
+    END                      AS type,
+
+    l.last_transaction_date,                     -- last inflow date (NULL if never used)
+
+    -- Compute days since last inflow (NULL if never used)
+    DATEDIFF(NOW(), l.last_transaction_date)     AS inactivity_days
+
+FROM plans_plan p
+
+    -- Include all plans; link to inflow info if it exists
+    LEFT JOIN last_transaction l
+      ON l.savings_id = p.id
+
+WHERE
+    -- Only actual savings or investment plans
+    (p.is_regular_savings = 1 OR p.is_a_fund = 1)
+    -- Flag plans never used or inactive > 365 days
+    AND (
+        l.last_transaction_date IS NULL
+        OR DATEDIFF(NOW(), l.last_transaction_date) > 365
+    )
+
+-- Show the most inactive plans first
+ORDER BY inactivity_days DESC;
