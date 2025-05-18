@@ -4,31 +4,31 @@ This repository contains the full execution and documentation of a live data ana
 
 ## 💼 Assessment Context
 
-**Goal:** Evaluate data analysts on real-world SQL problem solving.  
-**Scope:** The assessment contains 4 SQL questions, each targeting a specific business scenario.  
+**Goal:** Evaluate data analysts on real-world SQL problem solving  
+**Scope:** The assessment contains 4 SQL questions, each targeting a specific business scenario  
 **Environment:**  
-- MySQL 9.3 (localhost)
-- Dataset loaded from `adashi_assessment.sql`
-- Development environment: VS Code with MySQL plugin
+- MySQL 9.3 (localhost)  
+- Dataset loaded from `adashi_assessment.sql`  
+- Development environment: VS Code with MySQL plugin  
 - Version control: GitHub (`main` branch)
 
 Each solution is optimized for:
-- ✅ Accuracy
-- ✅ Performance
-- ✅ Clarity (modular structure, comments)
+- ✅ Accuracy  
+- ✅ Performance  
+- ✅ Clarity (modular structure, comments)  
 - ✅ Scalability (readable & adaptable)
 
 ---
 
 ## 📁 Repository Structure
 
-| File                  | Purpose                                |
-|-----------------------|----------------------------------------|
-| `Assessment_Q1.sql`   | Final answer for Question 1             |
-| `Assessment_Q2.sql`   | Placeholder for Question 2              |
-| `Assessment_Q3.sql`   | Placeholder for Question 3              |
-| `Assessment_Q4.sql`   | Placeholder for Question 4              |
-| `README.md`           | Full documentation and query breakdowns |
+| File                | Purpose                                 |
+|---------------------|-----------------------------------------|
+| `Assessment_Q1.sql` | Final answer for Question 1             |
+| `Assessment_Q2.sql` | Final answer for Question 2             |
+| `Assessment_Q3.sql` | Placeholder for Question 3              |
+| `Assessment_Q4.sql` | Placeholder for Question 4              |
+| `README.md`         | Full documentation and query breakdowns |
 
 ---
 
@@ -52,19 +52,18 @@ Sort results in **descending order** of total deposits.
 
 ---
 
-### 🧠 Query Strategy
+### 🧠 SQL Strategy
 
 This solution uses **modular SQL with CTEs (Common Table Expressions)** for clarity and reusability:
 
-1. `user_plans`: counts savings and investment plans per user
-2. `user_deposits`: aggregates confirmed deposit amounts
-3. Final SELECT: joins everything, applies filters, and sorts
+1. **`user_plans`** – counts savings and investment plans per user  
+2. **`user_deposits`** – aggregates confirmed deposit amounts  
+3. **Final SELECT** – joins everything, applies filters, and sorts
 
 ---
 
 ### 📌 SQL Concepts Applied
 
-<<<<<<< HEAD
 | Concept           | Description                                       |
 |------------------|---------------------------------------------------|
 | `WITH` (CTEs)    | Modular, reusable logic blocks                    |
@@ -76,47 +75,17 @@ This solution uses **modular SQL with CTEs (Common Table Expressions)** for clar
 ---
 
 ### 🚀 Performance
+
 - Benchmarked on a local machine:
   - ~1,760 users
   - 159K+ savings records
   - 9.6K+ plans
 - **Full query execution time: 1 second**
 - Fully scalable and readable for real-world analytics
-=======
-**Objective:**
-Identify customers who hold **at least one** funded savings plan *and* **one** funded investment plan—ideal cross-selling targets—sorted by their total deposit amount.
-
-**Approach:**
-
-1. **Joins:** Link `users_customuser` → `plans_plan` → `savings_savingsaccount` (only for savings plans).
-2. **Aggregation:**
-
-   * Count savings plans (`is_regular_savings = 1`) and investment plans (`is_a_fund = 1`).
-   * Sum all deposits and convert kobo→naira (`SUM(confirmed_amount)/100`).
-3. **Filtering:** Use `HAVING` to ensure each user has ≥1 of each plan type.
-4. **Ordering:** Descending by total deposits.
-
-See [Assessment_Q1.sql](https://github.com/akwaire/DataAnalytics-Assessment/blob/main/Assessment_Q1.sql)
 
 ---
 
-## Question 2: Transaction Frequency Analysis
-
-**Objective:**
-Segment customers into **High Frequency** (≥10 txns/month), **Medium Frequency** (3–9 txns/month), or **Low Frequency** (≤2 txns/month) based on their average monthly savings deposit transactions.
-
-**Approach:**
-
-1. Compute total transactions and months active (min 1) per user.
-2. Calculate average transactions per month.
-3. Bucket into High/Medium/Low via a `CASE` expression.
-4. Aggregate to count customers and average rates per bucket.
-
-See [Assessment_Q2.sql](https://github.com/akwaire/DataAnalytics-Assessment/blob/main/Assessment_Q2.sql)
-
----
-
-### 📥 Sample Output (Top 2 Users)
+### 📥 Result Sample (Top 2 Users)
 
 | owner_id                             | name   | savings_count | investment_count | total_deposits   |
 |--------------------------------------|--------|----------------|------------------|------------------|
@@ -129,35 +98,6 @@ See [Assessment_Q2.sql](https://github.com/akwaire/DataAnalytics-Assessment/blob
 
 ### ✅ Status: Completed & Committed  
 → See: [`Assessment_Q1.sql`](./Assessment_Q1.sql)
-=======
-**Approach:**
-
-1. Left-join `plans_plan` to any savings transactions.
-2. Use `MAX(transaction_date)` to find the last deposit per plan.
-3. Filter for inactivity ≥ 365 days via `HAVING`.
-4. Compute days of inactivity with `DATEDIFF`.
-
-See [Assessment_Q3.sql](https://github.com/akwaire/DataAnalytics-Assessment/blob/main/Assessment_Q3.sql)
-
----
-
-## Question 4: Customer Lifetime Value Estimation
-
-**Objective:**
-Estimate each customer’s lifetime value (CLV) using a simplified model where profit per transaction = 0.1% of the transaction value.
-
-**Approach:**
-
-1. Compute customer tenure in months since `date_joined` (min 1).
-2. Count total transactions & average deposit amount (in kobo).
-3. Apply CLV formula:
-
-   ```
-     CLV = (total_transactions/tenure_months) * 12 * (avg_amount_kobo/100000)
-   ```
-4. Order by estimated CLV descending.
-
-See [Assessment_Q4.sql](https://github.com/akwaire/DataAnalytics-Assessment/blob/main/Assessment_Q4.sql)
 
 ---
 
@@ -166,12 +106,10 @@ See [Assessment_Q4.sql](https://github.com/akwaire/DataAnalytics-Assessment/blob
 ### 🔍 Scenario  
 The finance team wants to understand how often customers transact, in order to segment them into frequency-based cohorts for personalized targeting or product design.
 
----
-
 ### 🧩 Task  
 Group users into frequency segments by calculating their **average transactions per month**, based on records in `savings_savingsaccount`.
 
-**Categories**:
+**Categories:**
 - **High Frequency**: ≥ 10 txns/month  
 - **Medium Frequency**: 3–9 txns/month  
 - **Low Frequency**: ≤ 2 txns/month
@@ -230,7 +168,6 @@ This query was structured using **modular CTEs (Common Table Expressions)** for 
 
 > Full query and logic are saved in [`Assessment_Q2.sql`](./Assessment_Q2.sql)
 
-
 ---
 
 ## 🕐 Q3: [Placeholder Title]
@@ -252,6 +189,5 @@ This query was structured using **modular CTEs (Common Table Expressions)** for 
 
 ---
 
-## 🔖 Tags
+## 🔖 Tags  
 `MySQL` `SQL Analytics` `Data Analyst` `CTE` `Joins` `Real-time Projects` `Cowrywise Assessment`
-
