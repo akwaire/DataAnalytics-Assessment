@@ -64,6 +64,7 @@ This solution uses **modular SQL with CTEs (Common Table Expressions)** for clar
 
 ### 📌 SQL Concepts Applied
 
+<<<<<<< HEAD
 | Concept           | Description                                       |
 |------------------|---------------------------------------------------|
 | `WITH` (CTEs)    | Modular, reusable logic blocks                    |
@@ -81,6 +82,38 @@ This solution uses **modular SQL with CTEs (Common Table Expressions)** for clar
   - 9.6K+ plans
 - **Full query execution time: 1 second**
 - Fully scalable and readable for real-world analytics
+=======
+**Objective:**
+Identify customers who hold **at least one** funded savings plan *and* **one** funded investment plan—ideal cross-selling targets—sorted by their total deposit amount.
+
+**Approach:**
+
+1. **Joins:** Link `users_customuser` → `plans_plan` → `savings_savingsaccount` (only for savings plans).
+2. **Aggregation:**
+
+   * Count savings plans (`is_regular_savings = 1`) and investment plans (`is_a_fund = 1`).
+   * Sum all deposits and convert kobo→naira (`SUM(confirmed_amount)/100`).
+3. **Filtering:** Use `HAVING` to ensure each user has ≥1 of each plan type.
+4. **Ordering:** Descending by total deposits.
+
+See [Assessment_Q1.sql](https://github.com/akwaire/DataAnalytics-Assessment/blob/main/Assessment_Q1.sql)
+
+---
+
+## Question 2: Transaction Frequency Analysis
+
+**Objective:**
+Segment customers into **High Frequency** (≥10 txns/month), **Medium Frequency** (3–9 txns/month), or **Low Frequency** (≤2 txns/month) based on their average monthly savings deposit transactions.
+
+**Approach:**
+
+1. Compute total transactions and months active (min 1) per user.
+2. Calculate average transactions per month.
+3. Bucket into High/Medium/Low via a `CASE` expression.
+4. Aggregate to count customers and average rates per bucket.
+
+See [Assessment_Q2.sql](https://github.com/akwaire/DataAnalytics-Assessment/blob/main/Assessment_Q2.sql)
+>>>>>>> c21326d25da1b74d54afef2787e1903a10c526b6
 
 ---
 
@@ -91,12 +124,43 @@ This solution uses **modular SQL with CTEs (Common Table Expressions)** for clar
 | 1909df3eba2548cfa3b9c270112bd262     | (NULL) | 3              | 9                | 890312215.48     |
 | 5572810f38b543429ffb218ef15243fc     | (NULL) | 108            | 60               | 389632644.11     |
 
+<<<<<<< HEAD
 > Note: `name` values are `NULL` in the dataset; logic remains valid.
 
 ---
 
 ### ✅ Status: Completed & Committed  
 → See: [`Assessment_Q1.sql`](./Assessment_Q1.sql)
+=======
+**Approach:**
+
+1. Left-join `plans_plan` to any savings transactions.
+2. Use `MAX(transaction_date)` to find the last deposit per plan.
+3. Filter for inactivity ≥ 365 days via `HAVING`.
+4. Compute days of inactivity with `DATEDIFF`.
+
+See [Assessment_Q3.sql](https://github.com/akwaire/DataAnalytics-Assessment/blob/main/Assessment_Q3.sql)
+
+---
+
+## Question 4: Customer Lifetime Value Estimation
+
+**Objective:**
+Estimate each customer’s lifetime value (CLV) using a simplified model where profit per transaction = 0.1% of the transaction value.
+
+**Approach:**
+
+1. Compute customer tenure in months since `date_joined` (min 1).
+2. Count total transactions & average deposit amount (in kobo).
+3. Apply CLV formula:
+
+   ```
+     CLV = (total_transactions/tenure_months) * 12 * (avg_amount_kobo/100000)
+   ```
+4. Order by estimated CLV descending.
+
+See [Assessment_Q4.sql](https://github.com/akwaire/DataAnalytics-Assessment/blob/main/Assessment_Q4.sql)
+>>>>>>> c21326d25da1b74d54afef2787e1903a10c526b6
 
 ---
 
