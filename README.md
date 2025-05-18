@@ -113,7 +113,6 @@ Segment customers into **High Frequency** (≥10 txns/month), **Medium Frequency
 4. Aggregate to count customers and average rates per bucket.
 
 See [Assessment_Q2.sql](https://github.com/akwaire/DataAnalytics-Assessment/blob/main/Assessment_Q2.sql)
->>>>>>> c21326d25da1b74d54afef2787e1903a10c526b6
 
 ---
 
@@ -124,7 +123,6 @@ See [Assessment_Q2.sql](https://github.com/akwaire/DataAnalytics-Assessment/blob
 | 1909df3eba2548cfa3b9c270112bd262     | (NULL) | 3              | 9                | 890312215.48     |
 | 5572810f38b543429ffb218ef15243fc     | (NULL) | 108            | 60               | 389632644.11     |
 
-<<<<<<< HEAD
 > Note: `name` values are `NULL` in the dataset; logic remains valid.
 
 ---
@@ -160,7 +158,6 @@ Estimate each customer’s lifetime value (CLV) using a simplified model where p
 4. Order by estimated CLV descending.
 
 See [Assessment_Q4.sql](https://github.com/akwaire/DataAnalytics-Assessment/blob/main/Assessment_Q4.sql)
->>>>>>> c21326d25da1b74d54afef2787e1903a10c526b6
 
 ---
 
