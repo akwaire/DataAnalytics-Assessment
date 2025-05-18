@@ -6,12 +6,35 @@ This repository contains my solutions to the SQL proficiency assessment provided
 
 ## Table of Contents
 
-1. [Assessment Overview](#assessment-overview)
-2. [Question 1: High-Value Customers with Multiple Products](#question-1-high-value-customers-with-multiple-products)
-3. [Question 2: Transaction Frequency Analysis](#question-2-transaction-frequency-analysis)
-4. [Question 3: Account Inactivity Alert](#question-3-account-inactivity-alert)
-5. [Question 4: Customer Lifetime Value Estimation](#question-4-customer-lifetime-value-estimation)
-6. [Challenges & Assumptions](#challenges--assumptions)
+1. [Getting Started](#getting-started)
+2. [Assessment Overview](#assessment-overview)
+3. [Question 1: High-Value Customers with Multiple Products](#question-1-high-value-customers-with-multiple-products)
+4. [Question 2: Transaction Frequency Analysis](#question-2-transaction-frequency-analysis)
+5. [Question 3: Account Inactivity Alert](#question-3-account-inactivity-alert)
+6. [Question 4: Customer Lifetime Value Estimation](#question-4-customer-lifetime-value-estimation)
+7. [Challenges & Assumptions](#challenges--assumptions)
+
+---
+
+## Getting Started
+
+1. Install MySQL 8.0 (or use XAMPP).
+2. Create the database:
+
+   ```sql
+   CREATE DATABASE adashi_staging;
+   ```
+3. Import the SQL dump:
+
+   ```bash
+   mysql -u root -p adashi_staging < adashi_assessment.sql
+   ```
+4. Run each query file in your SQL client:
+
+   * `Assessment_Q1.sql`
+   * `Assessment_Q2.sql`
+   * `Assessment_Q3.sql`
+   * `Assessment_Q4.sql`
 
 ---
 
@@ -44,28 +67,7 @@ Identify customers who hold **at least one** funded savings plan *and* **one** f
 4. **Ordering:** Descending by total deposits.
 
 ```sql
--- Assessment_Q1.sql
-SELECT
-    u.id                                           AS owner_id,
-    u.name                                         AS name,
-    SUM(CASE WHEN p.is_regular_savings = 1 THEN 1 ELSE 0 END) AS savings_count,
-    SUM(CASE WHEN p.is_a_fund         = 1 THEN 1 ELSE 0 END) AS investment_count,
-    COALESCE(SUM(s.confirmed_amount)/100.0, 0)             AS total_deposits
-FROM
-    users_customuser AS u
-    LEFT JOIN plans_plan AS p
-        ON p.owner_id = u.id
-    LEFT JOIN savings_savingsaccount AS s
-        ON s.savings_id = p.id
-        AND p.is_regular_savings = 1
-GROUP BY
-    u.id,
-    u.name
-HAVING
-       SUM(CASE WHEN p.is_regular_savings = 1 THEN 1 ELSE 0 END) >= 1
-   AND SUM(CASE WHEN p.is_a_fund         = 1 THEN 1 ELSE 0 END) >= 1
-ORDER BY
-    total_deposits DESC;
+-- See [Assessment_Q1.sql](./Assessment_Q1.sql)
 ```
 
 ---
@@ -83,50 +85,7 @@ Segment customers into **High Frequency** (≥10 txns/month), **Medium Frequency
 4. Aggregate to count customers and average rates per bucket.
 
 ```sql
--- Assessment_Q2.sql
-WITH user_txn AS (
-  SELECT
-    u.id AS customer_id,
-    COUNT(s.id) AS total_transactions,
-    GREATEST(
-      TIMESTAMPDIFF(
-        MONTH,
-        MIN(s.transaction_date),
-        MAX(s.transaction_date)
-      ) + 1,
-      1
-    ) AS months_active
-  FROM
-    users_customuser u
-    JOIN savings_savingsaccount s
-      ON s.owner_id = u.id
-  GROUP BY
-    u.id
-)
-
-SELECT
-  CASE
-    WHEN avg_txn >= 10 THEN 'High Frequency'
-    WHEN avg_txn BETWEEN 3 AND 9 THEN 'Medium Frequency'
-    ELSE 'Low Frequency'
-  END AS frequency_category,
-  COUNT(*)                           AS customer_count,
-  ROUND(AVG(avg_txn), 1)             AS avg_transactions_per_month
-FROM (
-  SELECT
-    customer_id,
-    total_transactions / months_active AS avg_txn
-  FROM
-    user_txn
-) AS sub
-GROUP BY
-  frequency_category
-ORDER BY
-  CASE frequency_category
-    WHEN 'High Frequency'   THEN 1
-    WHEN 'Medium Frequency' THEN 2
-    WHEN 'Low Frequency'    THEN 3
-  END;
+-- See [Assessment_Q2.sql](./Assessment_Q2.sql)
 ```
 
 ---
@@ -144,29 +103,7 @@ Flag all **active** savings or investment plans that have received **no deposit*
 4. Compute days of inactivity with `DATEDIFF`.
 
 ```sql
--- Assessment_Q3.sql
-SELECT
-  p.id                                             AS plan_id,
-  p.owner_id                                       AS owner_id,
-  CASE
-    WHEN p.is_regular_savings = 1 THEN 'Savings'
-    WHEN p.is_a_fund         = 1 THEN 'Investment'
-    ELSE 'Unknown'
-  END                                              AS type,
-  MAX(s.transaction_date)                          AS last_transaction_date,
-  DATEDIFF(CURDATE(), MAX(s.transaction_date))     AS inactivity_days
-FROM
-  plans_plan p
-  LEFT JOIN savings_savingsaccount s
-    ON s.savings_id = p.id
-GROUP BY
-  p.id,
-  p.owner_id,
-  p.is_regular_savings,
-  p.is_a_fund
-HAVING
-  MAX(s.transaction_date) IS NOT NULL
-  AND MAX(s.transaction_date) <= DATE_SUB(CURDATE(), INTERVAL 365 DAY);
+-- See [Assessment_Q3.sql](./Assessment_Q3.sql)
 ```
 
 ---
@@ -182,46 +119,13 @@ Estimate each customer’s lifetime value (CLV) using a simplified model where p
 2. Count total transactions & average deposit amount (in kobo).
 3. Apply CLV formula:
 
-   $$
-     \text{CLV} = \left(\frac{\text{total\_transactions}}{\text{tenure\_months}}\right) \times 12 \times \frac{\text{avg\_amount\_kobo}}{100\,000}
-   $$
+   ```
+     CLV = (total_transactions/tenure_months) * 12 * (avg_amount_kobo/100000)
+   ```
 4. Order by estimated CLV descending.
 
 ```sql
--- Assessment_Q4.sql
-WITH txn_stats AS (
-  SELECT
-    u.id                                     AS customer_id,
-    u.name                                   AS name,
-    GREATEST(
-      TIMESTAMPDIFF(MONTH, u.date_joined, CURDATE()),
-      1
-    )                                        AS tenure_months,
-    COUNT(s.id)                              AS total_transactions,
-    AVG(s.confirmed_amount)                 AS avg_amount_kobo
-  FROM
-    users_customuser u
-    LEFT JOIN savings_savingsaccount s
-      ON s.owner_id = u.id
-  GROUP BY
-    u.id,
-    u.name
-)
-
-SELECT
-  customer_id,
-  name,
-  tenure_months,
-  total_transactions,
-  ROUND(
-    (total_transactions / tenure_months) * 12
-    * (avg_amount_kobo / 100000),
-    2
-  )                                        AS estimated_clv
-FROM
-  txn_stats
-ORDER BY
-  estimated_clv DESC;
+-- See [Assessment_Q4.sql](./Assessment_Q4.sql)
 ```
 
 ---
@@ -233,18 +137,11 @@ ORDER BY
   * Monetary values stored in kobo; converted to naira by dividing by 100.
   * `is_regular_savings = 1` flags savings plans; `is_a_fund = 1` flags investments.
   * Users with no transactions appear in CLV with tenure ≥ 1 but CLV = 0.
-
 * **Challenges:**
 
   * Ensuring a minimum “months active” of 1 for users with a single transaction.
   * Converting kobo→naira and applying a 0.1% profit margin correctly.
   * Filtering out plans with **no** deposits ever when flagging inactivity.
-
-### Getting Started
-1. Install MySQL 8.0 (or use XAMPP).
-2. Create database: `CREATE DATABASE adashi_staging;`
-3. Import dump: `mysql -u root -p adashi_staging < adashi_assessment.sql`
-4. Run each query file in your SQL client.
 
 ---
 
