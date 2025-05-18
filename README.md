@@ -317,7 +317,7 @@ ORDER BY estimated_clv DESC;
 | 1909df3eba2548cfa3b9c270112bd262 | (NULL) | 33             | 2,383               | 323,749.80     |
 | 3097d111f15b4c44ac1bf1f49ec8f9bb | (NULL) | 25             | 845                 | 103,777.81     |
 
-> Full query logic is stored in [`Assessment_Q4.sql`](./Assessment_Q4.sql)
+> Full query logic is stored in [`Assessment_Q4.sql`](./Assessment_Q4.sql) 
 
 ---
 
