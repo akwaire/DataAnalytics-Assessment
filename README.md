@@ -66,9 +66,7 @@ Identify customers who hold **at least one** funded savings plan *and* **one** f
 3. **Filtering:** Use `HAVING` to ensure each user has ≥1 of each plan type.
 4. **Ordering:** Descending by total deposits.
 
-```sql
- See [Assessment_Q1.sql](https://github.com/akwaire/DataAnalytics-Assessment/blob/main/Assessment_Q1.sql)
-```
+See [Assessment_Q1.sql](https://github.com/akwaire/DataAnalytics-Assessment/blob/main/Assessment_Q1.sql)
 
 ---
 
@@ -84,9 +82,7 @@ Segment customers into **High Frequency** (≥10 txns/month), **Medium Frequency
 3. Bucket into High/Medium/Low via a `CASE` expression.
 4. Aggregate to count customers and average rates per bucket.
 
-```sql
--- See [Assessment_Q2.sql](./Assessment_Q2.sql)
-```
+See [Assessment_Q2.sql](https://github.com/akwaire/DataAnalytics-Assessment/blob/main/Assessment_Q2.sql)
 
 ---
 
@@ -102,9 +98,7 @@ Flag all **active** savings or investment plans that have received **no deposit*
 3. Filter for inactivity ≥ 365 days via `HAVING`.
 4. Compute days of inactivity with `DATEDIFF`.
 
-```sql
--- See [Assessment_Q3.sql](./Assessment_Q3.sql)
-```
+See [Assessment_Q3.sql](https://github.com/akwaire/DataAnalytics-Assessment/blob/main/Assessment_Q3.sql)
 
 ---
 
@@ -124,9 +118,7 @@ Estimate each customer’s lifetime value (CLV) using a simplified model where p
    ```
 4. Order by estimated CLV descending.
 
-```sql
--- See [Assessment_Q4.sql](./Assessment_Q4.sql)
-```
+See [Assessment_Q4.sql](https://github.com/akwaire/DataAnalytics-Assessment/blob/main/Assessment_Q4.sql)
 
 ---
 
