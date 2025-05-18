@@ -1,140 +1,136 @@
-# DataAnalytics-Assessment
+# Data Analytics Assessment — Cowrywise
 
-This repository contains my solutions to the SQL proficiency assessment provided by Cowrywise. It includes four SQL queries addressing cross-selling opportunities, transaction frequency analysis, inactivity alerts, and a simplified Customer Lifetime Value (CLV) estimation model, along with explanations of the approach, assumptions, and any challenges encountered.
+This repository contains the full execution and documentation of a live data analyst assessment for Cowrywise. It reflects the entire process — from local setup to query testing, optimization, benchmarking, and Git-based version control.
 
----
+## 💼 Assessment Context
 
-## Table of Contents
+**Goal:** Evaluate data analysts on real-world SQL problem solving.  
+**Scope:** The assessment contains 4 SQL questions, each targeting a specific business scenario.  
+**Environment:**  
+- MySQL 9.3 (localhost)
+- Dataset loaded from `adashi_assessment.sql`
+- Development environment: VS Code with MySQL plugin
+- Version control: GitHub (`main` branch)
 
-1. [Getting Started](#getting-started)
-2. [Assessment Overview](#assessment-overview)
-3. [Question 1: High-Value Customers with Multiple Products](#question-1-high-value-customers-with-multiple-products)
-4. [Question 2: Transaction Frequency Analysis](#question-2-transaction-frequency-analysis)
-5. [Question 3: Account Inactivity Alert](#question-3-account-inactivity-alert)
-6. [Question 4: Customer Lifetime Value Estimation](#question-4-customer-lifetime-value-estimation)
-7. [Challenges & Assumptions](#challenges--assumptions)
-
----
-
-## Getting Started
-
-1. Install MySQL 8.0 (or use XAMPP).
-2. Create the database:
-
-   ```sql
-   CREATE DATABASE adashi_staging;
-   ```
-3. Import the SQL dump:
-
-   ```bash
-   mysql -u root -p adashi_staging < adashi_assessment.sql
-   ```
-4. Run each query file in your SQL client:
-
-   * `Assessment_Q1.sql`
-   * `Assessment_Q2.sql`
-   * `Assessment_Q3.sql`
-   * `Assessment_Q4.sql`
+Each solution is optimized for:
+- ✅ Accuracy
+- ✅ Performance
+- ✅ Clarity (modular structure, comments)
+- ✅ Scalability (readable & adaptable)
 
 ---
 
-## Assessment Overview
+## 📁 Repository Structure
 
-* **Environment:** MySQL 8.0
-* **Schema:**
-
-  * `users_customuser` (customer demographics, signup date)
-  * `savings_savingsaccount` (deposit transactions)
-  * `plans_plan` (customer plans—savings vs. investments)
-  * `withdrawals_withdrawal` (withdrawal transactions)
-* **Data Units:** All monetary fields in **kobo** (100 kobo = 1 naira).
-
----
-
-## Question 1: High-Value Customers with Multiple Products
-
-**Objective:**
-Identify customers who hold **at least one** funded savings plan *and* **one** funded investment plan—ideal cross-selling targets—sorted by their total deposit amount.
-
-**Approach:**
-
-1. **Joins:** Link `users_customuser` → `plans_plan` → `savings_savingsaccount` (only for savings plans).
-2. **Aggregation:**
-
-   * Count savings plans (`is_regular_savings = 1`) and investment plans (`is_a_fund = 1`).
-   * Sum all deposits and convert kobo→naira (`SUM(confirmed_amount)/100`).
-3. **Filtering:** Use `HAVING` to ensure each user has ≥1 of each plan type.
-4. **Ordering:** Descending by total deposits.
-
-See [Assessment_Q1.sql](https://github.com/akwaire/DataAnalytics-Assessment/blob/main/Assessment_Q1.sql)
+| File                  | Purpose                                |
+|-----------------------|----------------------------------------|
+| `Assessment_Q1.sql`   | Final answer for Question 1             |
+| `Assessment_Q2.sql`   | Placeholder for Question 2              |
+| `Assessment_Q3.sql`   | Placeholder for Question 3              |
+| `Assessment_Q4.sql`   | Placeholder for Question 4              |
+| `README.md`           | Full documentation and query breakdowns |
 
 ---
 
-## Question 2: Transaction Frequency Analysis
+## ✅ Q1: High-Value Customers with Multiple Products
 
-**Objective:**
-Segment customers into **High Frequency** (≥10 txns/month), **Medium Frequency** (3–9 txns/month), or **Low Frequency** (≤2 txns/month) based on their average monthly savings deposit transactions.
+### 🔍 Scenario  
+The business wants to identify customers who have **both a savings and an investment plan** — for cross-selling opportunities.
 
-**Approach:**
+### 🧩 Task  
+Return users who have:
+- At least one **funded savings plan** (`is_regular_savings = 1`)
+- At least one **investment plan** (`is_a_fund = 1`)
+- Total **confirmed deposits** (converted from kobo to naira)
 
-1. Compute total transactions and months active (min 1) per user.
-2. Calculate average transactions per month.
-3. Bucket into High/Medium/Low via a `CASE` expression.
-4. Aggregate to count customers and average rates per bucket.
+Sort results in **descending order** of total deposits.
 
-See [Assessment_Q2.sql](https://github.com/akwaire/DataAnalytics-Assessment/blob/main/Assessment_Q2.sql)
-
----
-
-## Question 3: Account Inactivity Alert
-
-**Objective:**
-Flag all **active** savings or investment plans that have received **no deposit** transactions in the past **365 days**.
-
-**Approach:**
-
-1. Left-join `plans_plan` to any savings transactions.
-2. Use `MAX(transaction_date)` to find the last deposit per plan.
-3. Filter for inactivity ≥ 365 days via `HAVING`.
-4. Compute days of inactivity with `DATEDIFF`.
-
-See [Assessment_Q3.sql](https://github.com/akwaire/DataAnalytics-Assessment/blob/main/Assessment_Q3.sql)
+### 📊 Tables Used
+- `users_customuser`
+- `plans_plan`
+- `savings_savingsaccount`
 
 ---
 
-## Question 4: Customer Lifetime Value Estimation
+### 🧠 Query Strategy
 
-**Objective:**
-Estimate each customer’s lifetime value (CLV) using a simplified model where profit per transaction = 0.1% of the transaction value.
+This solution uses **modular SQL with CTEs (Common Table Expressions)** for clarity and reusability:
 
-**Approach:**
-
-1. Compute customer tenure in months since `date_joined` (min 1).
-2. Count total transactions & average deposit amount (in kobo).
-3. Apply CLV formula:
-
-   ```
-     CLV = (total_transactions/tenure_months) * 12 * (avg_amount_kobo/100000)
-   ```
-4. Order by estimated CLV descending.
-
-See [Assessment_Q4.sql](https://github.com/akwaire/DataAnalytics-Assessment/blob/main/Assessment_Q4.sql)
+1. `user_plans`: counts savings and investment plans per user
+2. `user_deposits`: aggregates confirmed deposit amounts
+3. Final SELECT: joins everything, applies filters, and sorts
 
 ---
 
-## Challenges & Assumptions
+### 📌 SQL Concepts Applied
 
-* **Assumptions:**
-
-  * Monetary values stored in kobo; converted to naira by dividing by 100.
-  * `is_regular_savings = 1` flags savings plans; `is_a_fund = 1` flags investments.
-  * Users with no transactions appear in CLV with tenure ≥ 1 but CLV = 0.
-* **Challenges:**
-
-  * Ensuring a minimum “months active” of 1 for users with a single transaction.
-  * Converting kobo→naira and applying a 0.1% profit margin correctly.
-  * Filtering out plans with **no** deposits ever when flagging inactivity.
+| Concept           | Description                                       |
+|------------------|---------------------------------------------------|
+| `WITH` (CTEs)    | Modular, reusable logic blocks                    |
+| `CASE WHEN`      | Conditional plan counts                           |
+| `COALESCE`       | Converts `NULL` to `0` for cleaner output         |
+| `ROUND(..., 2)`  | Converts from kobo to naira with 2 decimal places |
+| `LEFT JOIN`      | Ensures users without deposits are still included |
 
 ---
 
-*Thank you for reviewing my SQL assessment solutions. Feel free to reach out for any clarifications!*
+### 🚀 Performance
+- Benchmarked on a local machine:
+  - ~1,760 users
+  - 159K+ savings records
+  - 9.6K+ plans
+- **Full query execution time: 1 second**
+- Fully scalable and readable for real-world analytics
+
+---
+
+### 📥 Sample Output (Top 2 Users)
+
+| owner_id                             | name   | savings_count | investment_count | total_deposits   |
+|--------------------------------------|--------|----------------|------------------|------------------|
+| 1909df3eba2548cfa3b9c270112bd262     | (NULL) | 3              | 9                | 890312215.48     |
+| 5572810f38b543429ffb218ef15243fc     | (NULL) | 108            | 60               | 389632644.11     |
+
+> Note: `name` values are `NULL` in the dataset; logic remains valid.
+
+---
+
+### ✅ Status: Completed & Committed  
+→ See: [`Assessment_Q1.sql`](./Assessment_Q1.sql)
+
+---
+
+## 🕐 Q2: [Placeholder Title]
+
+> 🟨 _In Progress..._
+
+- [ ] Problem breakdown
+- [ ] SQL plan
+- [ ] Query testing
+- [ ] Optimization
+- [ ] Benchmark & commit
+
+---
+
+## 🕐 Q3: [Placeholder Title]
+
+> 🟨 _In Progress..._
+
+---
+
+## 🕐 Q4: [Placeholder Title]
+
+> 🟨 _In Progress..._
+
+---
+
+## 🧠 Author Notes
+
+- This project was executed with a focus on **transparency**, **real-time testing**, and **efficient SQL practices**
+- Ideal for live or timed assessments, onboarding SQL analysts, or preparing SQL templates
+
+---
+
+## 🔖 Tags
+`MySQL` `SQL Analytics` `Data Analyst` `CTE` `Joins` `Real-time Projects` `Cowrywise Assessment`
+
