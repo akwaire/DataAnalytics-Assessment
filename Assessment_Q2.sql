@@ -66,3 +66,4 @@ GROUP BY frequency_category
 
 -- Ensure the result order matches the business expectation
 ORDER BY FIELD(frequency_category, 'High Frequency', 'Medium Frequency', 'Low Frequency');
+
